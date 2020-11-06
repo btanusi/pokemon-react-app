@@ -10,7 +10,8 @@ class App extends React.Component {
       inputName:'',
       pokemonArray:[],
       searchFlag: false,
-      allPokemonNames: []
+      allPokemonNames: [],
+      similarPokemonNames: []
     }
   }
 
@@ -31,13 +32,13 @@ class App extends React.Component {
       const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonInputName}`)
       const json = await response.json()
       //some sort of error checking if json === "Not Found"
-            ///let pokemonObj = {name: json.name, type: json.types[0].type.name}
-      let pokemonProperties = [json.name, JSON.stringify(json.types)]
+      let pokemonObj = {name: json.name, type: json.types[0].type.name}
+      //let pokemonProperties = [json.name, JSON.stringify(json.types)]
       //json.types.forEach(type => pokemonProperties.push(type.name))
       //let newPokemonArray = this.state.pokemonArray.slice()
       //newPokemonArray.push(pokemonProperties)
       this.setState({
-                      pokemonArray: pokemonProperties,
+                      pokemonArray: this.state.pokemonArray.concat(pokemonObj),
                       searchFlag: true
                     })
     }
@@ -55,14 +56,24 @@ class App extends React.Component {
                     })
 
     }
-      //https://pokeapi.co/api/v2/pokemon/1-1000/names
 
-    onListClick(pokeName)
+    onListClickPokemon(pokeName)
     {
-      //let pokeName = event.target.value
       this.setState({inputName: pokeName}, this.getPokemonInfo)
-      //this.getPokemonInfo();
     }
+
+    onListSimilarTypes = async () =>
+    {
+      for(let i = 0; i < this.state.pokemonArray.length; i++){
+        let pokemonObj = this.state.pokemonArray[i];
+        if(pokemonObj.name === this.state.inputName){
+          const response = await fetch(`https://pokeapi.co/api/v2/type/${pokemonObj.type}`)
+          const json = await response.json();
+          this.setState({similarPokemonNames: json.pokemon.map(element => element.pokemon.name)})
+        }
+      }
+    }
+    
   render() {
     //render pokemonArray if we've searched the pokemon
     if(this.state.searchFlag){
@@ -71,9 +82,19 @@ class App extends React.Component {
           Search Complete!
           <ul>
             {this.state.pokemonArray.map(pokeProps => 
-              //pokeProps.map(prop =>
-                <li> {pokeProps} </li>
-              //)
+              <div>
+                <li>{pokeProps.name}</li>
+                <li>{pokeProps.type}</li>
+              </div>
+                  //pokeProps.map(prop =>
+                    //<li> {pokeProps} </li>
+                  //)
+            )}
+          </ul>
+          <button onClick={() => this.onListSimilarTypes()}>List Similar Types</button> 
+          <ul>
+            {this.state.similarPokemonNames.map(pokeName =>
+              <li>{pokeName}</li>
             )}
           </ul>
         </div>
@@ -90,7 +111,7 @@ class App extends React.Component {
         />
         <ul>
           {this.state.allPokemonNames.map(pokeName => 
-              <button value={pokeName} onClick= {() => this.onListClick(pokeName)}>{pokeName}</button> 
+              <button value={pokeName} onClick= {() => this.onListClickPokemon(pokeName)}>{pokeName}</button> 
             )}
         </ul>
       </div>
