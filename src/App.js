@@ -10,8 +10,10 @@ class App extends React.Component {
       inputName:'',
       pokemonArray:[],
       searchFlag: false,
+      viewCollectionFlag: false,
       allPokemonNames: [],
-      similarPokemonNames: []
+      similarPokemonNames: [],
+      pokemonCollection: [],
     }
   }
 
@@ -32,7 +34,7 @@ class App extends React.Component {
       const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonInputName}`)
       const json = await response.json()
       //some sort of error checking if json === "Not Found"
-      let pokemonObj = {name: json.name, type: json.types[0].type.name}
+      let pokemonObj = {name: json.name, type: json.types[0].type.name, baseXP: json.base_experience}
       //let pokemonProperties = [json.name, JSON.stringify(json.types)]
       //json.types.forEach(type => pokemonProperties.push(type.name))
       //let newPokemonArray = this.state.pokemonArray.slice()
@@ -73,6 +75,34 @@ class App extends React.Component {
         }
       }
     }
+
+    onCollectPokemon = () =>
+    {
+      alert(`You caught ${this.state.pokemonArray[0].name}!`)
+      this.setState(
+        {pokemonCollection: this.state.pokemonCollection.concat(this.state.pokemonArray[0])}
+      )
+    }
+
+    onClickHome = () =>{
+      this.setState(
+        {
+          searchFlag: false,
+          pokemonArray: [],
+          allPokemonNames: [],
+          similarPokemonNames: [],
+          viewCollectionFlag: false,
+        }
+      )
+    }
+
+    onViewCollection = () => {
+      this.setState(
+        {
+          viewCollectionFlag: true
+        }
+      )
+    }
     
   render() {
     //render pokemonArray if we've searched the pokemon
@@ -80,15 +110,15 @@ class App extends React.Component {
       return(
         <div>
           Search Complete!
+          <br>
+          </br>
           <ul>
             {this.state.pokemonArray.map(pokeProps => 
               <div>
-                <li>{pokeProps.name}</li>
+                <li>{pokeProps.name} <button onClick={() => this.onCollectPokemon()}>Catch {pokeProps.name}</button>
+                </li>
                 <li>{pokeProps.type}</li>
               </div>
-                  //pokeProps.map(prop =>
-                    //<li> {pokeProps} </li>
-                  //)
             )}
           </ul>
           <button onClick={() => this.onListSimilarTypes()}>List Similar Types</button> 
@@ -97,6 +127,21 @@ class App extends React.Component {
               <li>{pokeName}</li>
             )}
           </ul>
+          <button onClick={() => this.onClickHome()}>Go Home</button>
+        </div>
+      )
+    } else if (this.state.viewCollectionFlag){
+      return(
+        <div>
+          <ul>
+            {this.state.pokemonCollection.map(pokemon =>
+              <div>
+                <li> <h1>{pokemon.name}</h1> </li>
+                <li>{pokemon.type}</li>
+              </div>
+            )}
+          </ul>
+          <button onClick={() => this.onClickHome()}>Go Home</button>
         </div>
       )
     }
@@ -111,9 +156,10 @@ class App extends React.Component {
         />
         <ul>
           {this.state.allPokemonNames.map(pokeName => 
-              <button value={pokeName} onClick= {() => this.onListClickPokemon(pokeName)}>{pokeName}</button> 
+              <button onClick= {() => this.onListClickPokemon(pokeName)}>{pokeName}</button> 
             )}
         </ul>
+        <button onClick={() => this.onViewCollection()}>View Collection</button>
       </div>
     );
   }
