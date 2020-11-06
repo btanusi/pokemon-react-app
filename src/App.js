@@ -8,7 +8,7 @@ class App extends React.Component {
     super(props);
     this.state = {
       inputName:'',
-      pokemonArray:[],
+      pokemonObj:{},
       searchFlag: false,
       viewCollectionFlag: false,
       allPokemonNames: [],
@@ -19,29 +19,25 @@ class App extends React.Component {
   }
 
   handleOnInputNameChange = (event) => {
-      //grabs input
-      event.preventDefault();
-      this.setState({inputName: event.target.value})
+    //grabs input
+    event.preventDefault();
+    this.setState({inputName: event.target.value})
   }
 
   handleOnSearch = (event) => {
-      //This takes the input and searches api
-      event.preventDefault();
-      this.getPokemonInfo();
-    }
+    //This takes the input and searches api
+    event.preventDefault();
+    this.getPokemonInfo();
+  }
 
   getPokemonInfo = async ()=> {
     let pokemonInputName = this.state.inputName;    
     const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonInputName}`)
     const json = await response.json()
     //some sort of error checking if json === "Not Found"
-    let pokemonObj = {name: json.name, type: json.types[0].type.name, baseXP: json.base_experience}
-    //let pokemonProperties = [json.name, JSON.stringify(json.types)]
-    //json.types.forEach(type => pokemonProperties.push(type.name))
-    //let newPokemonArray = this.state.pokemonArray.slice()
-    //newPokemonArray.push(pokemonProperties)
+    let newPokemonObj = {name: json.name, type: json.types[0].type.name, baseXP: json.base_experience}
     this.setState({
-                    pokemonArray: this.state.pokemonArray.concat(pokemonObj),
+                    pokemonObj: newPokemonObj,
                     searchFlag: true
                   })
   }
@@ -57,7 +53,6 @@ class App extends React.Component {
     this.setState({
                     allPokemonNames: allPokemon
                   })
-
   }
 
   onListClickPokemon(pokeName)
@@ -67,21 +62,19 @@ class App extends React.Component {
 
   onListSimilarTypes = async () =>
   {
-    for(let i = 0; i < this.state.pokemonArray.length; i++){
-      let pokemonObj = this.state.pokemonArray[i];
-      if(pokemonObj.name === this.state.inputName){
-        const response = await fetch(`https://pokeapi.co/api/v2/type/${pokemonObj.type}`)
-        const json = await response.json();
-        this.setState({similarPokemonNames: json.pokemon.map(element => element.pokemon.name)})
-      }
+    let pokemonObj = this.state.pokemonObj;
+    if(pokemonObj.name === this.state.inputName){
+      const response = await fetch(`https://pokeapi.co/api/v2/type/${pokemonObj.type}`)
+      const json = await response.json();
+      this.setState({similarPokemonNames: json.pokemon.map(element => element.pokemon.name)})
     }
   }
 
   onCollectPokemon = () =>
   {
-    alert(`You caught ${this.state.pokemonArray[0].name}!`)
+    alert(`You caught ${this.state.pokemonObj.name}!`)
     this.setState(
-      {pokemonCollection: this.state.pokemonCollection.concat(this.state.pokemonArray[0])}
+      {pokemonCollection: this.state.pokemonCollection.concat(this.state.pokemonObj)}
     )
   }
 
@@ -89,7 +82,7 @@ class App extends React.Component {
     this.setState(
       {
         searchFlag: false,
-        pokemonArray: [],
+        pokemonObj: {},
         allPokemonNames: [],
         similarPokemonNames: [],
         viewCollectionFlag: false,
@@ -123,13 +116,11 @@ class App extends React.Component {
           <br>
           </br>
           <ul>
-            {this.state.pokemonArray.map(pokeProps => 
               <div>
-                <li>{pokeProps.name} <button onClick={() => this.onCollectPokemon()}>Catch {pokeProps.name}</button>
+                <li>{this.state.pokemonObj.name} <button onClick={() => this.onCollectPokemon()}>Catch {this.state.pokemonObj.name}</button>
                 </li>
-                <li>{pokeProps.type}</li>
+                <li>{this.state.pokemonObj.type}</li>
               </div>
-            )}
           </ul>
           <button onClick={() => this.onListSimilarTypes()}>List Similar Types</button> 
           <ul>
