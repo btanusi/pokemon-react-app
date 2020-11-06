@@ -20,10 +20,13 @@ class App extends React.Component {
       this.setState({inputName: event.target.value})
   }
 
-  handleOnSearch = async (event) => {
+  handleOnSearch = (event) => {
       //This takes the input and searches api
       event.preventDefault();
-      
+      this.getPokemonInfo();
+    }
+
+    getPokemonInfo = async ()=> {
       let pokemonInputName = this.state.inputName;    
       const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonInputName}`)
       const json = await response.json()
@@ -39,6 +42,7 @@ class App extends React.Component {
                     })
     }
 
+
     handleOnListAllPokemonNames = async (event) => {
       event.preventDefault();
       const response = await fetch(`https://pokeapi.co/api/v2/pokemon?limit=151`)
@@ -53,11 +57,11 @@ class App extends React.Component {
     }
       //https://pokeapi.co/api/v2/pokemon/1-1000/names
 
-    onListClick(event)
+    onListClick(pokeName)
     {
-      let pokeName = event.target.value
-      this.setState({inputName: pokeName})
-      this.handleOnSearch(event);
+      //let pokeName = event.target.value
+      this.setState({inputName: pokeName}, this.getPokemonInfo)
+      //this.getPokemonInfo();
     }
   render() {
     //render pokemonArray if we've searched the pokemon
@@ -86,7 +90,7 @@ class App extends React.Component {
         />
         <ul>
           {this.state.allPokemonNames.map(pokeName => 
-              <button value={pokeName} onClick= {() => this.onListClick()}>{pokeName}</button> 
+              <button value={pokeName} onClick= {() => this.onListClick(pokeName)}>{pokeName}</button> 
             )}
         </ul>
       </div>
