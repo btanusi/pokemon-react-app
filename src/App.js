@@ -14,6 +14,7 @@ class App extends React.Component {
       allPokemonNames: [],
       similarPokemonNames: [],
       pokemonCollection: [],
+      showStatsFlag: false,
     }
   }
 
@@ -92,6 +93,7 @@ class App extends React.Component {
         allPokemonNames: [],
         similarPokemonNames: [],
         viewCollectionFlag: false,
+        showStatsFlag: false,
       }
     )
   }
@@ -100,6 +102,14 @@ class App extends React.Component {
     this.setState(
       {
         viewCollectionFlag: true
+      }
+    )
+  }
+
+  onShowStats = () =>{
+    this.setState(
+      {
+        showStatsFlag: true
       }
     )
   }
@@ -136,7 +146,9 @@ class App extends React.Component {
           <ul>
             {this.state.pokemonCollection.map(pokemon =>
               <div>
-                <li> <h1>{pokemon.name}</h1> </li>
+                <li> <b>{pokemon.name}</b> {this.state.showStatsFlag ? 
+                                            pokemon.baseXP 
+                                            : <button onClick={() => this.onShowStats()}>Show Stats</button>}</li>
                 <li>{pokemon.type}</li>
               </div>
             )}
