@@ -35,7 +35,7 @@ class App extends React.Component {
     const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonInputName}`)
     const json = await response.json()
     //some sort of error checking if json === "Not Found"
-    let newPokemonObj = {name: json.name, type: json.types[0].type.name, baseXP: json.base_experience}
+    let newPokemonObj = {name: json.name, type: json.types[0].type.name, baseXP: json.base_experience, statsFlag: false}
     this.setState({
                     pokemonObj: newPokemonObj,
                     searchFlag: true
@@ -79,6 +79,11 @@ class App extends React.Component {
   }
 
   onClickHome = () =>{
+    let newPokemonCollection = this.state.pokemonCollection;
+    for(let i = 0; i < this.state.pokemonCollection.length; i++)
+    {
+        newPokemonCollection[i].statsFlag = false;
+    }
     this.setState(
       {
         searchFlag: false,
@@ -87,6 +92,7 @@ class App extends React.Component {
         similarPokemonNames: [],
         viewCollectionFlag: false,
         showStatsFlag: false,
+        pokemonCollection: newPokemonCollection
       }
     )
   }
@@ -99,10 +105,22 @@ class App extends React.Component {
     )
   }
 
-  onShowStats = () =>{
+  onShowStats = (pokemon) =>{
+    let newPokemonCollection = this.state.pokemonCollection;
+    for(let i = 0; i < this.state.pokemonCollection.length; i++)
+    {
+      //let newPokemonCollection = oldPokemonCollection
+      //newPokemonCollection[i] = newPokemonCollection[i].flag= true
+      //this.setState({pokemonCollection: newPokemonCollection})
+        if(this.state.pokemonCollection[i].name === pokemon.name)
+        {
+          //let newPokemonCollection = this.state.pokemonCollection;
+          newPokemonCollection[i].statsFlag = true;
+        }
+    }
     this.setState(
       {
-        showStatsFlag: true
+        pokemonCollection: newPokemonCollection
       }
     )
   }
@@ -137,9 +155,9 @@ class App extends React.Component {
           <ul>
             {this.state.pokemonCollection.map(pokemon =>
               <div>
-                <li> <b>{pokemon.name}</b> {this.state.showStatsFlag ? 
+                <li> <b>{pokemon.name}</b> {pokemon.statsFlag ? 
                                             pokemon.baseXP 
-                                            : <button onClick={() => this.onShowStats()}>Show Stats</button>}</li>
+                                            : <button onClick={() => this.onShowStats(pokemon)}>Show Stats</button>}</li>
                 <li>{pokemon.type}</li>
               </div>
             )}
